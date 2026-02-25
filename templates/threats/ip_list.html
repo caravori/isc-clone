@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}IP Reputation - {{ site_settings.site_name }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>IP Reputation Database</h2>
+    <p>Track and monitor malicious IP addresses.</p>
+    
+    <div style="margin-top: 1rem;">
+        <strong>Filter by Reputation:</strong>
+        <a href="?reputation=clean" class="btn" style="background: #10b981; margin: 0.25rem;">Clean</a>
+        <a href="?reputation=suspicious" class="btn" style="background: #f59e0b; margin: 0.25rem;">Suspicious</a>
+        <a href="?reputation=malicious" class="btn" style="background: #ef4444; margin: 0.25rem;">Malicious</a>
+        <a href="?reputation=blocked" class="btn" style="background: #991b1b; margin: 0.25rem;">Blocked</a>
+        <a href="{% url 'threats:ips' %}" class="btn" style="background: #6b7280; margin: 0.25rem;">All</a>
+    </div>
+</div>
+
+<div class="card">
+    <table style="width: 100%;">
+        <thead>
+            <tr style="border-bottom: 2px solid #e5e7eb;">
+                <th style="padding: 0.75rem; text-align: left;">IP Address</th>
+                <th style="padding: 0.75rem; text-align: center;">Reputation</th>
+                <th style="padding: 0.75rem; text-align: center;">Country</th>
+                <th style="padding: 0.75rem; text-align: center;">Reports</th>
+                <th style="padding: 0.75rem; text-align: left;">Last Seen</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ip in ips %}
+            <tr style="border-bottom: 1px solid #f3f4f6;">
+                <td style="padding: 0.75rem; font-family: monospace;">{{ ip.ip_address }}</td>
+                <td style="padding: 0.75rem; text-align: center;">
+                    <span style="padding: 0.25rem 0.75rem; border-radius: 4px; font-weight: 500; background: {% if ip.reputation == 'malicious' %}#fee2e2; color: #991b1b{% elif ip.reputation == 'suspicious' %}#fef3c7; color: #92400e{% elif ip.reputation == 'blocked' %}#fecaca; color: #7f1d1d{% else %}#d1fae5; color: #065f46{% endif %};">
+                        {{ ip.reputation|upper }}
+                    </span>
+                </td>
+                <td style="padding: 0.75rem; text-align: center;">{{ ip.country|default:"-" }}</td>
+                <td style="padding: 0.75rem; text-align: center;"><strong>{{ ip.reports_count }}</strong></td>
+                <td style="padding: 0.75rem;">{{ ip.last_seen|date:"M d, Y H:i" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" style="padding: 2rem; text-align: center; color: #6b7280;">No IP records found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
