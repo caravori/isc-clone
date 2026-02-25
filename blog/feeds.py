@@ -11,21 +11,39 @@ from core.models import SiteSettings
 class LatestPostsFeed(Feed):
     """RSS feed for latest posts with ISSN metadata."""
     
-    def __init__(self):
-        super().__init__()
-        self.settings = SiteSettings.get_settings()
+    def __call__(self, request, *args, **kwargs):
+        # Lazy load settings when feed is accessed, not during URL import
+        try:
+            self.settings = SiteSettings.get_settings()
+        except Exception:
+            # If database not ready, use defaults
+            self.settings = type('obj', (object,), {
+                'site_name': 'ISC Clone',
+                'site_description': 'Security Intelligence Platform',
+                'issn': '',
+                'publisher_name': ''
+            })
+        return super().__call__(request, *args, **kwargs)
     
     def title(self):
-        return self.settings.site_name
+        try:
+            settings = SiteSettings.get_settings()
+            return settings.site_name
+        except Exception:
+            return 'ISC Clone'
     
     def link(self):
         return reverse('core:home')
     
     def description(self):
-        desc = self.settings.site_description
-        if self.settings.issn:
-            desc += f' | ISSN: {self.settings.issn}'
-        return desc
+        try:
+            settings = SiteSettings.get_settings()
+            desc = settings.site_description
+            if settings.issn:
+                desc += f' | ISSN: {settings.issn}'
+            return desc
+        except Exception:
+            return 'Security Intelligence Platform'
     
     def items(self):
         return Post.objects.filter(status='published').order_by('-published_date')[:20]
@@ -47,10 +65,14 @@ class LatestPostsFeed(Feed):
     
     def feed_extra_kwargs(self, obj):
         extra = {}
-        if self.settings.issn:
-            extra['issn'] = self.settings.issn
-        if self.settings.publisher_name:
-            extra['publisher'] = self.settings.publisher_name
+        try:
+            settings = SiteSettings.get_settings()
+            if settings.issn:
+                extra['issn'] = settings.issn
+            if settings.publisher_name:
+                extra['publisher'] = settings.publisher_name
+        except Exception:
+            pass
         return extra
     
     def item_extra_kwargs(self, item):
