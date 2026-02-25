@@ -27,6 +27,35 @@ A Django-based clone of the SANS Internet Storm Center with integrated blog func
 - Dublin Core metadata
 - RSS feeds with ISSN
 
+## Quick Start
+
+### Using Docker Compose (Recommended)
+
+```bash
+# Clone repository
+git clone https://github.com/caravori/isc-clone.git
+cd isc-clone
+
+# Start all services
+docker-compose up -d
+
+# Create superuser
+docker-compose exec web python manage.py createsuperuser
+
+# Access application at http://localhost:8000
+```
+
+**That's it!** Docker Compose will automatically:
+- Set up PostgreSQL database
+- Configure Redis cache
+- Start Django web server
+- Launch Celery workers
+- Run database migrations
+
+For detailed Docker documentation, see [DOCKER.md](DOCKER.md)
+
+### Manual Installation
+
 ## Installation
 
 ### Prerequisites
@@ -127,6 +156,8 @@ isc-clone/
 ├── static/              # Static files (CSS, JS, images)
 ├── media/               # User uploads
 ├── templates/           # Global templates
+├── Dockerfile           # Docker configuration
+├── docker-compose.yml   # Docker Compose orchestration
 └── requirements.txt
 ```
 
@@ -176,19 +207,36 @@ Extend `threats/models.py` to add custom threat types
 
 ## Deployment
 
-### Production Settings
+### Docker Compose (Recommended)
+
+Production deployment with Docker:
+
+```bash
+# Update environment variables in docker-compose.yml
+# Start with Nginx reverse proxy
+docker-compose --profile production up -d
+```
+
+See [DOCKER.md](DOCKER.md) for complete Docker deployment guide.
+
+### Traditional Deployment
+
 1. Set `DEBUG=False` in `.env`
-2. Configure proper database (PostgreSQL recommended)
+2. Configure PostgreSQL database
 3. Set up Redis for Celery
 4. Configure static files serving
-5. Use gunicorn or uwsgi
+5. Use gunicorn as WSGI server
 6. Set up nginx reverse proxy
+7. Configure SSL certificates
 
-### Docker (Optional)
-```bash
-# Coming soon
-docker-compose up
-```
+See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed production setup.
+
+## Documentation
+
+- **[QUICKSTART.md](QUICKSTART.md)** - Get started in 5 minutes
+- **[DOCKER.md](DOCKER.md)** - Docker Compose deployment guide
+- **[DEPLOYMENT.md](DEPLOYMENT.md)** - Traditional production deployment
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** - How to contribute
 
 ## Contributing
 
@@ -197,6 +245,8 @@ Contributions welcome! Please:
 2. Create a feature branch
 3. Make your changes
 4. Submit a pull request
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
 ## License
 
