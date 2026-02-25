@@ -72,6 +72,8 @@ def simple_home(request):
             
             <div class="links">
                 <a href="/admin/">Admin Panel</a>
+                <a href="/blog/">Handler Diaries</a>
+                <a href="/threats/">Threats</a>
                 <a href="/health/">Health Check (JSON)</a>
             </div>
             
@@ -95,5 +97,39 @@ def simple_home(request):
 
 def home(request):
     """Homepage view."""
-    # For now, use simple homepage
-    return simple_home(request)
+    from blog.models import Post
+    from threats.models import ThreatLevel
+    
+    # Get latest posts
+    latest_posts = Post.objects.filter(status='published').order_by('-published_at')[:5]
+    
+    # Get current threat level
+    try:
+        current_threat = ThreatLevel.objects.filter(is_current=True).first()
+    except:
+        current_threat = None
+    
+    context = {
+        'latest_posts': latest_posts,
+        'current_threat': current_threat,
+    }
+    return render(request, 'core/home.html', context)
+
+
+def handlers(request):
+    """Display list of handlers."""
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+    
+    # Get all staff users (handlers)
+    handlers_list = User.objects.filter(is_staff=True, is_active=True).order_by('username')
+    
+    context = {
+        'handlers': handlers_list,
+    }
+    return render(request, 'core/handlers.html', context)
+
+
+def about(request):
+    """About page."""
+    return render(request, 'core/about.html')
