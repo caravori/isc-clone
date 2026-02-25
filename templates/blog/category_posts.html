@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ category.name }} - {{ site_settings.site_name }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Category: {{ category.name }}</h2>
+    {% if category.description %}
+    <p>{{ category.description }}</p>
+    {% endif %}
+</div>
+
+{% for post in posts %}
+<div class="card">
+    <h3><a href="{{ post.get_absolute_url }}" style="color: #3b82f6; text-decoration: none;">{{ post.title }}</a></h3>
+    <div class="text-muted" style="font-size: 0.9rem;">
+        By {{ post.author.get_full_name|default:post.author.username }} | {{ post.published_date|date:"F d, Y" }}
+    </div>
+    <p style="margin-top: 0.5rem;">{{ post.excerpt }}</p>
+    <a href="{{ post.get_absolute_url }}" class="btn" style="margin-top: 0.5rem;">Read More</a>
+</div>
+{% empty %}
+<div class="card">
+    <p>No posts in this category yet.</p>
+</div>
+{% endfor %}
+
+<div style="margin-top: 2rem;">
+    <a href="{% url 'blog:post_list' %}" class="btn" style="background: #6b7280;">&larr; All Posts</a>
+</div>
+{% endblock %}
