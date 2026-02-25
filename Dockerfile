@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y \
     postgresql-client \
     libpq-dev \
     gettext \
+    netcat-openbsd \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
@@ -21,17 +22,15 @@ COPY requirements.txt /app/
 RUN pip install --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
+# Copy entrypoint script first and set permissions
+COPY docker-entrypoint.sh /app/docker-entrypoint.sh
+RUN chmod +x /app/docker-entrypoint.sh
+
 # Copy project files
 COPY . /app/
 
 # Create directories for static and media files
-RUN mkdir -p /app/staticfiles /app/media
-
-# Make entrypoint script executable
-RUN chmod +x /app/docker-entrypoint.sh
-
-# Collect static files
-RUN python manage.py collectstatic --noinput || true
+RUN mkdir -p /app/staticfiles /app/media /app/static
 
 # Expose port
 EXPOSE 8000
