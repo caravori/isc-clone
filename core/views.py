@@ -101,7 +101,7 @@ def home(request):
     from threats.models import ThreatLevel
     
     # Get latest posts
-    latest_posts = Post.objects.filter(status='published').order_by('-published_at')[:5]
+    latest_posts = Post.objects.filter(status='published').order_by('-published_date')[:5]
     
     # Get current threat level
     try:
