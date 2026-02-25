@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}About - {{ site_settings.site_name }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>About {{ site_settings.site_name }}</h2>
+    <p>{{ site_settings.site_description }}</p>
+    
+    <h3 style="margin-top: 2rem;">Mission</h3>
+    <p>
+        This platform is inspired by the SANS Internet Storm Center and aims to provide
+        timely security intelligence through handler diaries, threat analysis, and
+        collaborative information sharing.
+    </p>
+    
+    <h3 style="margin-top: 2rem;">Features</h3>
+    <ul style="margin-left: 2rem; margin-top: 0.5rem;">
+        <li>Daily handler diaries from security experts</li>
+        <li>Real-time threat intelligence tracking</li>
+        <li>Port activity monitoring and statistics</li>
+        <li>IP reputation database</li>
+        <li>Indicators of Compromise (IoCs) tracking</li>
+        <li>ISSN-compliant publication metadata</li>
+        <li>RSS/Atom feeds for syndication</li>
+    </ul>
+    
+    {% if ISSN_NUMBER %}
+    <h3 style="margin-top: 2rem;">Publication Information</h3>
+    <table style="width: 100%; margin-top: 0.5rem;">
+        <tr>
+            <td style="font-weight: bold; padding: 0.5rem; background: #f3f4f6;">ISSN:</td>
+            <td style="padding: 0.5rem;">{{ ISSN_NUMBER }}</td>
+        </tr>
+        {% if ISSN_L %}
+        <tr>
+            <td style="font-weight: bold; padding: 0.5rem; background: #f3f4f6;">ISSN-L:</td>
+            <td style="padding: 0.5rem;">{{ ISSN_L }}</td>
+        </tr>
+        {% endif %}
+        {% if PUBLISHER_NAME %}
+        <tr>
+            <td style="font-weight: bold; padding: 0.5rem; background: #f3f4f6;">Publisher:</td>
+            <td style="padding: 0.5rem;">{{ PUBLISHER_NAME }}</td>
+        </tr>
+        {% endif %}
+        {% if PUBLISHER_COUNTRY %}
+        <tr>
+            <td style="font-weight: bold; padding: 0.5rem; background: #f3f4f6;">Country:</td>
+            <td style="padding: 0.5rem;">{{ PUBLISHER_COUNTRY }}</td>
+        </tr>
+        {% endif %}
+    </table>
+    {% endif %}
+    
+    <h3 style="margin-top: 2rem;">Technology</h3>
+    <p>Built with Django and modern web technologies, featuring:</p>
+    <ul style="margin-left: 2rem; margin-top: 0.5rem;">
+        <li>Django 5.x framework</li>
+        <li>CKEditor for rich text editing</li>
+        <li>PostgreSQL/SQLite database support</li>
+        <li>RESTful API endpoints</li>
+        <li>Responsive design</li>
+    </ul>
+</div>
+
+<div class="card">
+    <h2>Contact</h2>
+    {% if site_settings.contact_email %}
+    <p>For inquiries, please contact: <a href="mailto:{{ site_settings.contact_email }}">{{ site_settings.contact_email }}</a></p>
+    {% else %}
+    <p>Contact information will be available soon.</p>
+    {% endif %}
+</div>
+{% endblock %}
