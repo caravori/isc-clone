@@ -3,35 +3,82 @@
 {% block title %}Home - {{ block.super }}{% endblock %}
 
 {% block content %}
-<div class="card">
-    <h2>Welcome to ISC Clone</h2>
-    <p>A clone of the SANS Internet Storm Center for tracking and sharing cybersecurity threat intelligence.</p>
+<div class="card" style="background: linear-gradient(135deg, #dcfce7 0%, #d1fae5 100%); border-left: 4px solid #10b981;">
+    <h2 style="color: #065f46; font-size: 1.75rem;">👋 Welcome to {{ site_settings.site_name }}</h2>
+    <p style="font-size: 1.1rem; color: #047857; margin-top: 0.5rem;">
+        Your hub for cybersecurity threat intelligence and handler insights. Stay informed about the latest security threats and analysis from our expert team.
+    </p>
 </div>
 
 {% if current_threat %}
-<div class="card">
-    <h2>Current Threat Level: {{ current_threat.get_level_display }}</h2>
-    <p>{{ current_threat.description }}</p>
-    <p class="text-muted">Last updated: {{ current_threat.recorded_date|date:"F j, Y, g:i a" }}</p>
+<div class="card" style="border-left: 4px solid {% if current_threat.level == 'low' %}#10b981{% elif current_threat.level == 'medium' %}#f59e0b{% elif current_threat.level == 'high' %}#f97316{% else %}#ef4444{% endif %};">
+    <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: 1rem;">
+        <div style="flex: 1;">
+            <h2 style="display: flex; align-items: center; gap: 0.5rem;">
+                ⚠️ Current Threat Level: 
+                <span style="color: {% if current_threat.level == 'low' %}#10b981{% elif current_threat.level == 'medium' %}#f59e0b{% elif current_threat.level == 'high' %}#f97316{% else %}#ef4444{% endif %}; text-transform: uppercase;">
+                    {{ current_threat.get_level_display }}
+                </span>
+            </h2>
+            <p style="margin-top: 1rem; font-size: 1.05rem;">{{ current_threat.description }}</p>
+            <p class="text-muted" style="margin-top: 0.75rem;">
+                <strong>Last updated:</strong> {{ current_threat.recorded_date|date:"F j, Y, g:i a" }}
+            </p>
+        </div>
+        <a href="{% url 'threats:dashboard' %}" class="btn" style="align-self: flex-start;">
+            View Threat Dashboard →
+        </a>
+    </div>
 </div>
 {% endif %}
 
 <div class="card">
-    <h2>Latest Handler Diaries</h2>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h2 style="margin: 0;">📝 Latest Handler Diaries</h2>
+        <a href="{% url 'blog:post_list' %}" class="btn-secondary btn">View All</a>
+    </div>
+    
     {% if latest_posts %}
         {% for post in latest_posts %}
-        <div style="border-bottom: 1px solid #e5e7eb; padding: 1rem 0;">
-            <h3><a href="{% url 'blog:post_detail' post.slug %}" style="color: #3b82f6; text-decoration: none;">{{ post.title }}</a></h3>
-            <p class="text-muted">
-                By {{ post.author.get_full_name|default:post.author.username }} | 
+        <div class="post-item">
+            <h3>
+                <a href="{% url 'blog:post_detail' post.slug %}">{{ post.title }}</a>
+            </h3>
+            <p class="text-muted" style="margin: 0.5rem 0;">
+                <strong>By {{ post.author.get_full_name|default:post.author.username }}</strong> | 
                 {{ post.published_date|date:"F j, Y" }}
+                {% if post.category %}
+                    | <span style="color: #10b981;">📚 {{ post.category.name }}</span>
+                {% endif %}
             </p>
-            <p>{{ post.excerpt|truncatewords:30 }}</p>
+            <p style="color: #4b5563; line-height: 1.6;">
+                {{ post.excerpt|default:post.content|striptags|truncatewords:40 }}
+            </p>
         </div>
         {% endfor %}
-        <a href="{% url 'blog:post_list' %}" class="btn" style="margin-top: 1rem;">View All Diaries →</a>
     {% else %}
-        <p class="text-muted">No posts yet. <a href="/admin/blog/post/add/">Create your first post</a> in the admin panel.</p>
+        <div style="text-align: center; padding: 3rem 1rem; background: #f9fafb; border-radius: 8px;">
+            <p style="font-size: 3rem; margin-bottom: 1rem;">📝</p>
+            <p class="text-muted" style="font-size: 1.1rem;">No posts published yet.</p>
+            <a href="/admin/blog/post/add/" class="btn" style="margin-top: 1rem;">Create Your First Post</a>
+        </div>
     {% endif %}
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+    <div class="card" style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-top: 3px solid #3b82f6;">
+        <h3 style="color: #1e40af; margin-bottom: 1rem;">🔒 Secure by Default</h3>
+        <p style="color: #1e40af;">Enterprise-grade security monitoring and threat intelligence platform.</p>
+    </div>
+    
+    <div class="card" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-top: 3px solid #f59e0b;">
+        <h3 style="color: #92400e; margin-bottom: 1rem;">📡 Real-time Updates</h3>
+        <p style="color: #92400e;">Stay informed with RSS/Atom feeds and instant threat notifications.</p>
+    </div>
+    
+    <div class="card" style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); border-top: 3px solid #ef4444;">
+        <h3 style="color: #991b1b; margin-bottom: 1rem;">⚡ Expert Analysis</h3>
+        <p style="color: #991b1b;">Curated insights from experienced security handlers worldwide.</p>
+    </div>
 </div>
 {% endblock %}
