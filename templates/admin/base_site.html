@@ -1,0 +1,162 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block branding %}
+<h1 id="site-name" style="font-size: 1.5rem; font-weight: 600; padding: 1rem 0;">
+    <a href="{% url 'admin:index' %}" style="color: #4ade80; text-decoration: none;">{{ site_header|default:_('ISC Clone Administration') }}</a>
+</h1>
+{% endblock %}
+
+{% block extrastyle %}
+<style>
+    /* Custom admin colors - green theme */
+    :root {
+        --primary: #4ade80;
+        --primary-dark: #22c55e;
+        --secondary: #2d5016;
+        --accent: #84cc16;
+        --header-color: #1f2937;
+        --header-branding-color: var(--primary);
+        --header-link-color: #d1d5db;
+    }
+    
+    /* Header */
+    #header {
+        background: var(--header-color);
+        border-bottom: 3px solid var(--primary);
+    }
+    
+    #header a:link,
+    #header a:visited {
+        color: var(--header-link-color);
+    }
+    
+    #header a:hover,
+    #header a:focus {
+        color: var(--primary);
+    }
+    
+    /* Branding */
+    #branding h1 {
+        color: var(--primary);
+    }
+    
+    /* Breadcrumbs */
+    div.breadcrumbs {
+        background: #f3f4f6;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    /* Buttons */
+    .button,
+    input[type=submit],
+    input[type=button],
+    .submit-row input,
+    a.button {
+        background: var(--primary);
+        border: none;
+        color: #064e3b;
+        font-weight: 500;
+    }
+    
+    .button:hover,
+    input[type=submit]:hover,
+    input[type=button]:hover,
+    .submit-row input:hover,
+    a.button:hover {
+        background: var(--primary-dark);
+    }
+    
+    .button.default,
+    input[type=submit].default,
+    .submit-row input.default {
+        background: var(--secondary);
+        color: white;
+    }
+    
+    .button.default:hover,
+    input[type=submit].default:hover,
+    .submit-row input.default:hover {
+        background: #3f6212;
+    }
+    
+    /* Links */
+    a:link,
+    a:visited {
+        color: var(--secondary);
+    }
+    
+    a:hover,
+    a:focus {
+        color: var(--primary-dark);
+    }
+    
+    /* Module headers */
+    .module h2,
+    .module caption {
+        background: var(--secondary);
+    }
+    
+    /* Selected items */
+    .selected {
+        background: #dcfce7;
+    }
+    
+    /* Calendar and time widgets */
+    .calendar caption,
+    .calendarbox h2 {
+        background: var(--secondary);
+    }
+    
+    .calendar td.selected a {
+        background: var(--primary);
+        color: #064e3b;
+    }
+    
+    /* Dashboard */
+    #content-main .module caption {
+        background: var(--secondary);
+    }
+    
+    /* Change list */
+    #changelist-search .submit-row input {
+        background: var(--primary);
+    }
+    
+    /* Object tools */
+    .object-tools a:link,
+    .object-tools a:visited {
+        background: var(--secondary);
+    }
+    
+    .object-tools a:hover,
+    .object-tools a:focus {
+        background: #3f6212;
+    }
+    
+    /* Make it more spacious */
+    #content {
+        padding: 30px 40px;
+    }
+    
+    .module {
+        margin-bottom: 20px;
+    }
+    
+    /* Better form styling */
+    .form-row {
+        padding: 15px 10px;
+    }
+    
+    /* Welcome message */
+    #user-tools {
+        font-size: 0.9rem;
+    }
+    
+    #user-tools a {
+        font-weight: 500;
+    }
+</style>
+{% endblock %}
