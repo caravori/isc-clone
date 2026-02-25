@@ -1,28 +1,28 @@
-#!/bin/bash
-
+#!/bin/sh
 set -e
 
 echo "Waiting for PostgreSQL..."
 while ! nc -z db 5432; do
-  echo "PostgreSQL is unavailable - sleeping"
-  sleep 1
+  sleep 0.1
 done
 echo "PostgreSQL started"
 
-# Give PostgreSQL a moment to fully initialize
-sleep 2
-
+# Run migrations
 echo "Creating migrations..."
-python manage.py makemigrations --noinput || true
+python manage.py makemigrations --noinput
 
 echo "Running migrations..."
 python manage.py migrate --noinput
 
+# Collect static files
 echo "Collecting static files..."
 python manage.py collectstatic --noinput --clear
 
-echo "Creating cache table..."
-python manage.py createcachetable 2>/dev/null || true
+# Setup initial data (superuser, site, etc)
+if [ "$SETUP_DB" = "true" ]; then
+  echo "Setting up initial database..."
+  /bin/sh /app/scripts/setup_db.sh
+fi
 
 echo "Starting application..."
 exec "$@"
