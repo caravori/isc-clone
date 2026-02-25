@@ -1,45 +1,27 @@
 {% extends 'base.html' %}
 
-{% block title %}Our Handlers - {{ site_settings.site_name }}{% endblock %}
+{% block title %}Our Handlers - {{ block.super }}{% endblock %}
 
 {% block content %}
 <div class="card">
     <h2>Our Security Handlers</h2>
-    <p>Meet the team of security professionals contributing to {{ site_settings.site_name }}.</p>
+    <p>Meet our team of cybersecurity professionals who contribute to this community.</p>
 </div>
 
-{% for handler in handlers %}
-<div class="card">
-    <h3>{{ handler.user.get_full_name|default:handler.user.username }}</h3>
-    {% if handler.expertise %}
-    <p style="color: #3b82f6; font-weight: 500;">{{ handler.expertise }}</p>
-    {% endif %}
-    {% if handler.bio %}
-    <p style="margin-top: 0.5rem;">{{ handler.bio }}</p>
-    {% endif %}
-    
-    <div style="margin-top: 1rem; font-size: 0.9rem; color: #6b7280;">
-        <strong>Posts:</strong> {{ handler.get_post_count }} |
-        <strong>Joined:</strong> {{ handler.joined_date|date:"F Y" }}
+{% if handlers %}
+    {% for handler in handlers %}
+    <div class="card">
+        <h3>{{ handler.get_full_name|default:handler.username }}</h3>
+        {% if handler.email %}
+        <p class="text-muted">Email: {{ handler.email }}</p>
+        {% endif %}
+        <p class="text-muted">Member since: {{ handler.date_joined|date:"F Y" }}</p>
+        <a href="{% url 'blog:post_list' %}?author={{ handler.username }}" class="btn">View Posts</a>
     </div>
-    
-    {% if handler.website or handler.twitter or handler.github %}
-    <div style="margin-top: 0.5rem;">
-        {% if handler.website %}
-        <a href="{{ handler.website }}" target="_blank" style="margin-right: 1rem;">Website</a>
-        {% endif %}
-        {% if handler.twitter %}
-        <a href="https://twitter.com/{{ handler.twitter }}" target="_blank" style="margin-right: 1rem;">Twitter</a>
-        {% endif %}
-        {% if handler.github %}
-        <a href="https://github.com/{{ handler.github }}" target="_blank">GitHub</a>
-        {% endif %}
+    {% endfor %}
+{% else %}
+    <div class="card">
+        <p class="text-muted">No handlers yet. Create staff users in the <a href="/admin/">admin panel</a>.</p>
     </div>
-    {% endif %}
-</div>
-{% empty %}
-<div class="card">
-    <p>No active handlers at the moment. Check back soon!</p>
-</div>
-{% endfor %}
+{% endif %}
 {% endblock %}
