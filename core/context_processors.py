@@ -1,25 +1,32 @@
-"""
-Context processors for global template variables.
-"""
-from .models import SiteSettings
-
-
-def issn_context(request):
-    """Add ISSN information to all templates."""
-    settings = SiteSettings.get_settings()
-    return {
-        'ISSN_NUMBER': settings.issn,
-        'ISSN_L': settings.issn_l,
-        'PUBLISHER_NAME': settings.publisher_name,
-        'PUBLISHER_COUNTRY': settings.publisher_country,
-    }
+from django.conf import settings
+from django.contrib.sites.models import Site
 
 
 def site_settings(request):
     """Add site settings to all templates."""
-    settings = SiteSettings.get_settings()
+    try:
+        current_site = Site.objects.get_current()
+    except:
+        current_site = None
+    
     return {
-        'site_settings': settings,
-        'INFOCON_STATUS': settings.infocon_status,
-        'INFOCON_DESCRIPTION': settings.infocon_description,
+        'site_settings': {
+            'site_name': current_site.name if current_site else 'ISC Clone',
+            'site_description': 'Cybersecurity Threat Intelligence and Handler Diaries',
+        },
+        'ISSN_NUMBER': getattr(settings, 'ISSN_NUMBER', ''),
+        'ISSN_L': getattr(settings, 'ISSN_L', ''),
+        'PUBLISHER_NAME': getattr(settings, 'PUBLISHER_NAME', 'ISC Clone'),
+        'PUBLISHER_COUNTRY': getattr(settings, 'PUBLISHER_COUNTRY', 'US'),
+        'INFOCON_STATUS': get_infocon_status(),
     }
+
+
+def get_infocon_status():
+    """Get current InfoCon threat level."""
+    try:
+        from threats.models import ThreatLevel
+        current = ThreatLevel.objects.filter(is_current=True).first()
+        return current.level if current else 'green'
+    except:
+        return 'green'
