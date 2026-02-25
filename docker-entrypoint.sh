@@ -7,21 +7,21 @@ while ! nc -z db 5432; do
 done
 echo "PostgreSQL started"
 
-# Run migrations
-echo "Creating migrations..."
-python manage.py makemigrations --noinput
+# Only run migrations if needed (check if migrations table exists)
+echo "Checking migrations..."
+if python manage.py showmigrations 2>&1 | grep -q "\[ \]"; then
+  echo "Running migrations..."
+  python manage.py migrate --noinput
+else
+  echo "Migrations up to date"
+fi
 
-echo "Running migrations..."
-python manage.py migrate --noinput
-
-# Collect static files
-echo "Collecting static files..."
-python manage.py collectstatic --noinput --clear
-
-# Setup initial data (superuser, site, etc)
-if [ "$SETUP_DB" = "true" ]; then
-  echo "Setting up initial database..."
-  /bin/sh /app/scripts/setup_db.sh
+# Only collect static files if directory is empty
+if [ ! -d "/app/staticfiles/admin" ]; then
+  echo "Collecting static files..."
+  python manage.py collectstatic --noinput --clear
+else
+  echo "Static files already collected"
 fi
 
 echo "Starting application..."
