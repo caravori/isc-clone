@@ -103,9 +103,9 @@ def home(request):
     # Get latest posts
     latest_posts = Post.objects.filter(status='published').order_by('-published_date')[:5]
     
-    # Get current threat level
+    # Get current threat level (most recent)
     try:
-        current_threat = ThreatLevel.objects.filter(is_current=True).first()
+        current_threat = ThreatLevel.objects.first()
     except:
         current_threat = None
     

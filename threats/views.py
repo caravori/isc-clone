@@ -5,8 +5,9 @@ from .models import ThreatLevel
 
 def dashboard(request):
     """Threat intelligence dashboard."""
-    current_threat = ThreatLevel.objects.filter(is_current=True).first()
-    threat_history = ThreatLevel.objects.order_by('-set_at')[:10]
+    # Get most recent threat (first in ordered queryset)
+    current_threat = ThreatLevel.objects.first()
+    threat_history = ThreatLevel.objects.all()[:10]
     
     context = {
         'current_threat': current_threat,
@@ -17,17 +18,17 @@ def dashboard(request):
 
 def infocon_status(request):
     """API endpoint for current InfoCon status."""
-    current = ThreatLevel.objects.filter(is_current=True).first()
+    current = ThreatLevel.objects.first()
     
     if current:
         data = {
             'status': current.level,
-            'set_at': current.set_at.isoformat(),
+            'recorded_date': current.recorded_date.isoformat(),
             'description': current.description,
         }
     else:
         data = {
-            'status': 'green',
+            'status': 'low',
             'description': 'Normal activity',
         }
     

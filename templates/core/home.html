@@ -12,7 +12,7 @@
 <div class="card">
     <h2>Current Threat Level: {{ current_threat.get_level_display }}</h2>
     <p>{{ current_threat.description }}</p>
-    <p class="text-muted">Last updated: {{ current_threat.set_at|date:"F j, Y, g:i a" }}</p>
+    <p class="text-muted">Last updated: {{ current_threat.recorded_date|date:"F j, Y, g:i a" }}</p>
 </div>
 {% endif %}
 

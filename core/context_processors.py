@@ -26,7 +26,7 @@ def get_infocon_status():
     """Get current InfoCon threat level."""
     try:
         from threats.models import ThreatLevel
-        current = ThreatLevel.objects.filter(is_current=True).first()
-        return current.level if current else 'green'
+        current = ThreatLevel.objects.first()
+        return current.level if current else 'low'
     except:
-        return 'green'
+        return 'low'

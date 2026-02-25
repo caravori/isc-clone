@@ -10,8 +10,8 @@
 
 {% if current_threat %}
 <div class="card">
-    <h2>Current InfoCon Level: <span style="color: {% if current_threat.level == 'green' %}#10b981{% elif current_threat.level == 'yellow' %}#f59e0b{% elif current_threat.level == 'orange' %}#f97316{% else %}#ef4444{% endif %};">{{ current_threat.get_level_display|upper }}</span></h2>
-    <p><strong>Set at:</strong> {{ current_threat.set_at|date:"F j, Y, g:i a" }}</p>
+    <h2>Current Threat Level: <span style="color: {% if current_threat.level == 'low' %}#10b981{% elif current_threat.level == 'medium' %}#f59e0b{% elif current_threat.level == 'high' %}#f97316{% else %}#ef4444{% endif %};">{{ current_threat.get_level_display|upper }}</span></h2>
+    <p><strong>Recorded:</strong> {{ current_threat.recorded_date|date:"F j, Y, g:i a" }}</p>
     <p>{{ current_threat.description }}</p>
 </div>
 {% else %}
@@ -34,9 +34,9 @@
         <tbody>
             {% for threat in threat_history %}
             <tr style="border-bottom: 1px solid #e5e7eb;">
-                <td style="padding: 0.5rem;">{{ threat.set_at|date:"Y-m-d H:i" }}</td>
+                <td style="padding: 0.5rem;">{{ threat.recorded_date|date:"Y-m-d H:i" }}</td>
                 <td style="padding: 0.5rem;">
-                    <span style="color: {% if threat.level == 'green' %}#10b981{% elif threat.level == 'yellow' %}#f59e0b{% elif threat.level == 'orange' %}#f97316{% else %}#ef4444{% endif %}; font-weight: bold;">
+                    <span style="color: {% if threat.level == 'low' %}#10b981{% elif threat.level == 'medium' %}#f59e0b{% elif threat.level == 'high' %}#f97316{% else %}#ef4444{% endif %}; font-weight: bold;">
                         {{ threat.get_level_display|upper }}
                     </span>
                 </td>
