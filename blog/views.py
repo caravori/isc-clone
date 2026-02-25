@@ -1,82 +1,84 @@
-"""
-Blog views for ISC Clone.
-"""
-from django.views.generic import ListView, DetailView
-from django.shortcuts import get_object_or_404
+from django.shortcuts import render, get_object_or_404
+from django.core.paginator import Paginator
+from django.db.models import Q
 from .models import Post, Category
 from taggit.models import Tag
 
 
-class PostListView(ListView):
-    """List all published posts."""
-    model = Post
-    template_name = 'blog/post_list.html'
-    context_object_name = 'posts'
-    paginate_by = 10
+def post_list(request):
+    """Display list of published blog posts."""
+    posts = Post.objects.filter(status='published').select_related('author', 'category')
     
-    def get_queryset(self):
-        return Post.objects.filter(
-            status='published'
-        ).select_related('author', 'category').prefetch_related('tags')
+    # Pagination
+    paginator = Paginator(posts, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'page_obj': page_obj,
+        'posts': page_obj.object_list,
+    }
+    return render(request, 'blog/post_list.html', context)
 
 
-class PostDetailView(DetailView):
-    """Display a single post."""
-    model = Post
-    template_name = 'blog/post_detail.html'
-    context_object_name = 'post'
+def post_detail(request, slug):
+    """Display single blog post."""
+    post = get_object_or_404(Post, slug=slug, status='published')
     
-    def get_queryset(self):
-        return Post.objects.filter(status='published').select_related(
-            'author', 'category'
-        ).prefetch_related('tags', 'comments')
+    # Increment view count
+    post.views_count += 1
+    post.save(update_fields=['views_count'])
     
-    def get_object(self):
-        obj = super().get_object()
-        obj.increment_views()
-        return obj
+    # Get related posts
+    related_posts = Post.objects.filter(
+        status='published',
+        category=post.category
+    ).exclude(id=post.id)[:3]
     
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['comments'] = self.object.comments.filter(is_approved=True)
-        return context
+    context = {
+        'post': post,
+        'related_posts': related_posts,
+    }
+    return render(request, 'blog/post_detail.html', context)
 
 
-class CategoryPostListView(ListView):
-    """List posts in a category."""
-    model = Post
-    template_name = 'blog/category_posts.html'
-    context_object_name = 'posts'
-    paginate_by = 10
+def category_posts(request, slug):
+    """Display posts from a specific category."""
+    category = get_object_or_404(Category, slug=slug)
+    posts = Post.objects.filter(
+        status='published',
+        category=category
+    ).select_related('author')
     
-    def get_queryset(self):
-        self.category = get_object_or_404(Category, slug=self.kwargs['slug'])
-        return Post.objects.filter(
-            status='published',
-            category=self.category
-        ).select_related('author', 'category').prefetch_related('tags')
+    # Pagination
+    paginator = Paginator(posts, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['category'] = self.category
-        return context
+    context = {
+        'category': category,
+        'page_obj': page_obj,
+        'posts': page_obj.object_list,
+    }
+    return render(request, 'blog/category_posts.html', context)
 
 
-class TagPostListView(ListView):
-    """List posts with a tag."""
-    model = Post
-    template_name = 'blog/tag_posts.html'
-    context_object_name = 'posts'
-    paginate_by = 10
+def tag_posts(request, slug):
+    """Display posts with a specific tag."""
+    tag = get_object_or_404(Tag, slug=slug)
+    posts = Post.objects.filter(
+        status='published',
+        tags__slug=slug
+    ).select_related('author', 'category')
     
-    def get_queryset(self):
-        self.tag = get_object_or_404(Tag, slug=self.kwargs['slug'])
-        return Post.objects.filter(
-            status='published',
-            tags__in=[self.tag]
-        ).select_related('author', 'category').prefetch_related('tags')
+    # Pagination
+    paginator = Paginator(posts, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['tag'] = self.tag
-        return context
+    context = {
+        'tag': tag,
+        'page_obj': page_obj,
+        'posts': page_obj.object_list,
+    }
+    return render(request, 'blog/tag_posts.html', context)
