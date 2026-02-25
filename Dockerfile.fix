@@ -1,0 +1,53 @@
+FROM python:3.11-slim
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Set work directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    postgresql-client \
+    libpq-dev \
+    gettext \
+    netcat-openbsd \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies
+COPY requirements.txt /app/
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+# Copy project files
+COPY . /app/
+
+# Create directories
+RUN mkdir -p /app/staticfiles /app/media /app/static
+
+# Create entrypoint inline to avoid permission issues
+RUN echo '#!/bin/bash\n\
+set -e\n\
+echo "Waiting for PostgreSQL..."\n\
+while ! nc -z db 5432; do\n\
+  echo "PostgreSQL is unavailable - sleeping"\n\
+  sleep 1\n\
+done\n\
+echo "PostgreSQL started"\n\
+echo "Running migrations..."\n\
+python manage.py migrate --noinput\n\
+echo "Collecting static files..."\n\
+python manage.py collectstatic --noinput --clear\n\
+echo "Starting application..."\n\
+exec "$@"' > /entrypoint.sh && \
+    chmod +x /entrypoint.sh
+
+# Expose port
+EXPOSE 8000
+
+# Run entrypoint script
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["gunicorn", "isc_project.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3"]
